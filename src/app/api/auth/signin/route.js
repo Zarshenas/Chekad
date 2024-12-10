@@ -42,12 +42,6 @@ export async function POST(req) {
         status: 200,
         headers: { "Set-Cookie": seralized },
       });
-
-    // return NextResponse.json(
-    //   { message: "login success full" },
-    //   { status: 200 },
-    //   {}
-    // );
   } catch (error) {
     return NextResponse.json({ errors: error }, { status: 400 });
   }

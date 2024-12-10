@@ -1,4 +1,5 @@
 import { hash, compare } from "bcryptjs";
+import { verify } from "jsonwebtoken";
 
 const salt = 8;
 
@@ -12,4 +13,14 @@ const verifyPassword = async (hasshedPass, plainPass) => {
   return isEqul;
 };
 
-export { hashPassword , verifyPassword};
+const verifyToken = (token, secretKey) => {
+  try {
+    const result = verify(token, secretKey);
+    return { email: result.email };
+  } catch (err) {
+    console.log(err);
+    return false;
+  }
+};
+
+export { hashPassword, verifyPassword, verifyToken };
