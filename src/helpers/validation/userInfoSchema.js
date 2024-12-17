@@ -1,6 +1,6 @@
 import * as Yup from "yup";
 
-const SUPPORTED_FORMATS = ["image/jpeg", "image/png", "image/gif"];
+const SUPPORTED_FORMATS = ["image/jpeg", "image/png"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const userInfoSchema = Yup.object().shape({
   profilePicture: Yup.mixed()

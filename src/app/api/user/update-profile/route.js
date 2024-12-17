@@ -5,7 +5,6 @@ import cloudinary from "@/utils/cloudinary";
 import { withMulter } from "@/utils/multer";
 import { Readable } from "stream";
 import { User } from "@/models/User";
-import { json } from "stream/consumers";
 
 export const GET = (req, res) => {
   const userId = req.headers.get("x-user-id");
