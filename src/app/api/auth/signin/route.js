@@ -29,7 +29,8 @@ export async function POST(req) {
     if (!(await verifyPassword(user.password, password))) {
       return NextResponse.json({ error: "Wrong Password" }, { status: 400 });
     }
-    const token = sign({ email }, process.env.SECRET_KEY, {
+    console.log(user._id);
+    const token = sign({ userId: user._id.toString() }, process.env.SECRET_KEY, {
       expiresIn: 24 * 60 * 60,
     });
     const seralized = serialize("token", token, {

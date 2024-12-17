@@ -16,7 +16,7 @@ const verifyPassword = async (hasshedPass, plainPass) => {
 const verifyToken = (token, secretKey) => {
   try {
     const result = verify(token, secretKey);
-    return { email: result.email };
+    return { userId : result.userId};
   } catch (err) {
     console.log(err);
     return false;
