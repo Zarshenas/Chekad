@@ -6,7 +6,7 @@ import { serialize } from "cookie";
 import { sign } from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
-const expiration = 60; // one min
+const expiration =  60 * 60; // 1h
 
 export async function POST(req) {
   const { email, password } = await req.json();

@@ -1,5 +1,6 @@
 import { models, model, Schema } from "mongoose";
 
+
 const commentSchema = new Schema(
   {
     userID: {
@@ -20,6 +21,4 @@ const commentSchema = new Schema(
   { timestamps: true }
 );
 
-const Comment = mongoose.model("Comment", commentSchema);
-
-module.exports = Comment;
+export const Comment = models.Comment || model("Comment", commentSchema);
