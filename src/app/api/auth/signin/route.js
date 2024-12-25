@@ -6,6 +6,8 @@ import { serialize } from "cookie";
 import { sign } from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
+const expiration = 60; // one min
+
 export async function POST(req) {
   const { email, password } = await req.json();
   const validatedInfo = signinSchema
@@ -29,13 +31,12 @@ export async function POST(req) {
     if (!(await verifyPassword(user.password, password))) {
       return NextResponse.json({ error: "Wrong Password" }, { status: 400 });
     }
-    console.log(user._id);
     const token = sign({ userId: user._id.toString() }, process.env.SECRET_KEY, {
-      expiresIn: 24 * 60 * 60,
+      expiresIn: expiration,
     });
     const seralized = serialize("token", token, {
       httpOnly: true,
-      maxAge: 24 * 60 * 60,
+      maxAge: expiration,
       path: "/",
     });
 

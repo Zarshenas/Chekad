@@ -1,26 +1,35 @@
 import { NextResponse } from "next/server";
 import * as jose from "jose";
-import { verify } from "jsonwebtoken";
+import { redirect } from 'next/navigation'
 
-export async function middleware(req) {
-  const excludedPaths = ["/api/auth/"];
+export async function middleware(req ) {
+  const url = req.nextUrl.clone();
+  const excludedPaths = new Set(["/api/auth/signin", "/api/auth/signup", "/"]);
+  const protectedRoutes = new Set([
+    "/api/user/post",
+    "/api/user/update-profile",
+  ]);
   const { pathname } = req.nextUrl;
-  if (pathname === "/") {
-    return NextResponse.next(); // Skip middleware for excluded paths
+  let token = req.cookies.get("token")?.value;
+  // Skip middleware for excluded paths
+  if (excludedPaths.has(pathname)) {
+    return NextResponse.next();
   }
-  
-  if (excludedPaths.some((path) => pathname.startsWith(path))) {
-    return NextResponse.next(); // Skip middleware for excluded paths
+  // If accessing a protected route without a token, redirect to signin
+  if (protectedRoutes.has(pathname) && !token) {
+    url.pathname = '/signin';
+    return NextResponse.redirect(url);
+
   }
-  let token = req.cookies.get("token");
+  // Redirect to login if no token is provided
   if (!token) {
-    // Redirect to login if no token is provided
-    return NextResponse.redirect(new URL("/api/auth/signin", req.url));
+    url.pathname = '/signin';
+    return NextResponse.redirect(url);
+
   }
-  
   try {
     // Verify the token
-    const result = jose.decodeJwt(token.value);
+    const result = jose.decodeJwt(token);
     // Attach the email to header
     const response = NextResponse.next();
     response.headers.set("x-user-id", result.userId);
