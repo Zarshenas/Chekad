@@ -8,12 +8,8 @@ const userSchema = new Schema(
     email: { type: String, unique: true, require: true },
     bio: { type: String, default: () => "" },
     profileImage: { type: String, default: () => "" },
-    posts: [
-      {
-        type: Schema.Types.ObjectId,
-        ref:"Post"
-      },
-    ],
+    followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    following: [{ type: Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );

@@ -7,13 +7,22 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { Readable } from "stream";
 
-export const GET = (req, res) => {
+export const GET =async (req, res) => {
   const userId = req.headers.get("x-user-id");
-  return new Response(
-    JSON.stringify({ message: "Here U will get all of your posts later" }),
-    { status: 200 }
-  );
+  try {
+    connectDB();
+    const fetchAllPosts = await Post.find({userId :new mongoose.Types.ObjectId(userId)})
+      .then((data) => data)
+      .catch((error) => {
+        throw new Error("couldn't retrieve posts");
+      });
+      return NextResponse.json({ post:fetchAllPosts }, { status: 200 });
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ error: error }, { status: 500 });
+  }
 };
+
 export const POST = withMulter(async (req, res) => {
   const userId = req.headers.get("x-user-id");
   const postsFolder = `chekad-project/users/${userId}/posts`;
