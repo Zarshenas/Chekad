@@ -9,7 +9,6 @@ import { Readable } from "stream";
 
 export const GET = (req, res) => {
   const userId = req.headers.get("x-user-id");
-  //   console.log(userId);
   return new Response(
     JSON.stringify({ message: "Here U will get all of your posts later" }),
     { status: 200 }
