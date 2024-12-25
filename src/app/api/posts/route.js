@@ -18,7 +18,6 @@ export const GET = (req, res) => {
 export const POST = withMulter(async (req, res) => {
   const userId = req.headers.get("x-user-id");
   const postsFolder = `chekad-project/users/${userId}/posts`;
-  //   console.log(userId);
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     return new Response(JSON.stringify({ error: "Not Authenticated" }), {
       status: 401,
@@ -31,6 +30,7 @@ export const POST = withMulter(async (req, res) => {
     const tags = formData.getAll("tags");
     const files = formData.getAll("files");
     const image = formData.get("image");
+    console.log(files);
     //   Connect to the database
     await connectDB();
     
@@ -47,7 +47,7 @@ export const POST = withMulter(async (req, res) => {
     .catch((error) => {
       return error;
     });
-    
+    console.log(validatedPost);
     const fileUrl = await Promise.all(
       validatedPost.files.map(async (file) => {
         // Create a Readable stream from the file
@@ -100,7 +100,7 @@ export const POST = withMulter(async (req, res) => {
       });
     }
   } catch (error) {
-    // console.log(error);
+    console.log(error);
     return NextResponse.json({ errors: error }, { status: 400 });
   }
 });
