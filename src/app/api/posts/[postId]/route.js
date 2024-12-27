@@ -11,12 +11,26 @@ export const GET = async (req, { params }) => {
       .then((data) => data)
       .catch((error) => {
         throw new Error("couldn't retrieve post");
-        
       });
-      return NextResponse.json({ post:fetchedPost }, { status: 200 });
+    return NextResponse.json({ post: fetchedPost }, { status: 200 });
     console.log(fetchedPost);
   } catch (error) {
     console.log(error);
     return NextResponse.json({ error: error }, { status: 500 });
+  }
+};
+
+export const DELETE = async (req, { params }) => {
+  const { postId } = params;
+  try {
+    connectDB();
+    const deletedPost = await Post.findByIdAndDelete(postId, { new: true })
+      .then((deletedPost) => deletedPost)
+      .catch((error) => {
+        throw new Error(error)
+      });
+      return NextResponse.json(deletedPost , { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error }, { status: 500 });
   }
 };
