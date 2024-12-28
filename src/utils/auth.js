@@ -18,7 +18,6 @@ const verifyToken = (token, secretKey) => {
     const result = verify(token, secretKey);
     return { userId : result.userId};
   } catch (err) {
-    console.log(err);
     return false;
   }
 };
