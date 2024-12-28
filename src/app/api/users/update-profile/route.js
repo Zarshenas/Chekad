@@ -6,66 +6,83 @@ import { withMulter } from "@/utils/multer";
 import { Readable } from "stream";
 import { User } from "@/models/User";
 
-export const GET = (req, res) => {
-  const userId = req.headers.get("x-user-id");
-  console.log(userId);
-  return new Response(JSON.stringify({ message: "salll" }), { status: 200 });
-};
-
-export const PUT = withMulter(async (req, res) => {
+export const PUT = withMulter(async (req) => {
   const userId = req.headers.get("x-user-id");
   const profileFolder = `chekad-project/users/${userId}/profilePic`;
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "شناسه کاربر یافت نشد." },
+      { status: 400 }
+    );
+  }
+
   try {
     const formData = await req.formData();
     const profilePicture = formData.get("profilePicture");
     const bio = formData.get("bio");
     const name = formData.get("name");
 
-    //   Connect to the database
-    await connectDB();
+    // Validate user input
+    const { error: validationError, value: validatedInfo } = userInfoSchema.validate(
+      { profilePicture, bio, name }
+    );
 
-    const validatedInfo = await userInfoSchema
-      .validate({ profilePicture, bio, name })
-      .then((data) => data)
-      .catch((error) => {
-        return error;
-      });
-    if (validatedInfo.errors) {
+    if (validationError) {
       return NextResponse.json(
-        { errors: validatedInfo.errors },
+        { error: "اطلاعات وارد شده معتبر نیست.", details: validationError.details },
         { status: 400 }
       );
     }
-    // Create a Readable stream from the file
-    const readableStream = Readable.from(profilePicture.stream());
-    // Upload the file to Cloudinary
-    const uploadResult = await new Promise((resolve, reject) => {
-      const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: profileFolder, public_id: `user_${userId}` },
-        // Optional folder in Cloudinary
-        (error, result) => {
-          if (error) return reject(error);
-          resolve(result);
-        }
-      );
-      readableStream.pipe(uploadStream); // Pipe the stream to Cloudinary
-    });
 
-    await User.updateOne(
-      { _id: userId },
-      { profileImage: uploadResult.secure_url },
+    // Connect to the database
+    await connectDB();
+
+    // Upload profile picture to Cloudinary
+    let profileImageUrl = null;
+    if (profilePicture) {
+      const readableStream = Readable.from(profilePicture.stream());
+      const uploadResult = await new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+          { folder: profileFolder, public_id: `user_${userId}` },
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        readableStream.pipe(uploadStream);
+      });
+
+      profileImageUrl = uploadResult.secure_url;
+    }
+
+    // Update user in the database
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        ...(validatedInfo.bio && { bio: validatedInfo.bio }),
+        ...(validatedInfo.name && { name: validatedInfo.name }),
+        ...(profileImageUrl && { profileImage: profileImageUrl }),
+      },
       { new: true }
     );
 
-    return new Response(
-      JSON.stringify({ message: "user profile successfully updated" }),
-      {
-        status: 200,
-      }
+    if (!updatedUser) {
+      return NextResponse.json(
+        { error: "کاربر یافت نشد یا بروزرسانی انجام نشد." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "اطلاعات کاربر با موفقیت بروزرسانی شد.", user: updatedUser },
+      { status: 200 }
     );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-    });
+    console.error("Error updating user profile:", error);
+    return NextResponse.json(
+      { error: "خطایی رخ داد. لطفاً دوباره تلاش کنید." },
+      { status: 500 }
+    );
   }
 });
