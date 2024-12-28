@@ -6,45 +6,59 @@ import { serialize } from "cookie";
 import { sign } from "jsonwebtoken";
 import { NextResponse } from "next/server";
 
-const expiration =  60 * 60; // 1h
+const expiration = 60 * 60; // 1 hour
 
 export async function POST(req) {
   const { email, password } = await req.json();
-  const validatedInfo = signinSchema
-    .validate({ email, password })
-    .catch((error) => {
-      return error;
-    });
 
-  if (validatedInfo.errors) {
-    return NextResponse.json({ errors: validatedInfo.errors }, { status: 400 });
+  try {
+    await signinSchema.validate({ email, password });
+  } catch (validationError) {
+    return NextResponse.json(
+      { errors: validationError.errors || validationError.message },
+      { status: 400 }
+    );
   }
 
   try {
-    connectDB();
+    await connectDB();
+  } catch (dbError) {
+    return NextResponse.json(
+      { error: "خطا در اتصال به پایگاه داده. لطفاً بعداً دوباره تلاش کنید." },
+      { status: 500 }
+    );
+  }
 
+  try {
     const user = await User.findOne({ email });
     if (!user) {
-      return NextResponse.json({ message: "user not found!" }, { status: 404 });
+      console.error(`کاربری با ایمیل ${email} یافت نشد.`);
+      return NextResponse.json({ message: "ایمیل یا رمز عبور نامعتبر است." }, { status: 400 });
     }
 
-    if (!(await verifyPassword(user.password, password))) {
-      return NextResponse.json({ error: "Wrong Password" }, { status: 400 });
+    const isPasswordValid = await verifyPassword(user.password, password);
+    if (!isPasswordValid) {
+      return NextResponse.json({ message: "ایمیل یا رمز عبور نامعتبر است." }, { status: 400 });
     }
+
     const token = sign({ userId: user._id.toString() }, process.env.SECRET_KEY, {
       expiresIn: expiration,
     });
-    const seralized = serialize("token", token, {
+
+    const serialized = serialize("token", token, {
       httpOnly: true,
       maxAge: expiration,
       path: "/",
     });
 
-    return new Response(JSON.stringify({ message: "login success full" }), {
+    return new Response(
+      JSON.stringify({ message: "ورود با موفقیت انجام شد." }),
+      {
         status: 200,
-        headers: { "Set-Cookie": seralized },
-      });
+        headers: { "Set-Cookie": serialized },
+      }
+    );
   } catch (error) {
-    return NextResponse.json({ errors: error }, { status: 400 });
+    return NextResponse.json({ errors: error.message }, { status: 500 });
   }
 }
