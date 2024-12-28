@@ -11,28 +11,32 @@ export async function middleware(req ) {
   ]);
   const { pathname } = req.nextUrl;
   let token = req.cookies.get("token")?.value;
+
   // Skip middleware for excluded paths
   if (excludedPaths.has(pathname)) {
     return NextResponse.next();
   }
+
   // If accessing a protected route without a token, redirect to signin
   if (protectedRoutes.has(pathname) && !token) {
     url.pathname = '/signin';
     return NextResponse.redirect(url);
-
   }
+
   // Redirect to login if no token is provided
   if (!token) {
     url.pathname = '/signin';
     return NextResponse.redirect(url);
-
   }
+
   try {
-    // Verify the token
-    const result = jose.decodeJwt(token);
-    // Attach the email to header
+    // Verify the token using jwtVerify
+    const { payload } = await jose.jwtVerify(token, new TextEncoder().encode(process.env.SECRET_KEY));
+
+    // Attach the userId to the response headers
     const response = NextResponse.next();
-    response.headers.set("x-user-id", result.userId);
+    response.headers.set("x-user-id", payload.userId);
+
     return response;
   } catch (error) {
     console.error("Invalid token:", error.message);
@@ -41,19 +45,8 @@ export async function middleware(req ) {
   }
 }
 
-// export const config = {
-//   matcher: ["/user"], // Protect specific routes
-// };
-
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
-     */
     "/api/:path*", // Apply middleware to all API routes
     {
       source:
@@ -63,7 +56,6 @@ export const config = {
         { type: "header", key: "purpose", value: "prefetch" },
       ],
     },
-
     {
       source:
         "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
@@ -72,7 +64,6 @@ export const config = {
         { type: "header", key: "purpose", value: "prefetch" },
       ],
     },
-
     {
       source:
         "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
@@ -80,5 +71,4 @@ export const config = {
       missing: [{ type: "header", key: "x-missing", value: "prefetch" }],
     },
   ],
-  // matcher: ["/:path*"], // Apply middleware to all routes
 };
