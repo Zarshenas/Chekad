@@ -4,32 +4,57 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
 export const POST = async (req, { params }) => {
-  const { unFollowId } = await req.json();
-  const { userId } = params;
   try {
-    connectDB();
-    // Update the user following
+    await connectDB();
+
+    const { unFollowId } = await req.json();
+    const { userId } = params;
+
+    // Validate IDs
+    if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(unFollowId)) {
+      return NextResponse.json(
+        { error: "شناسه‌های وارد شده معتبر نیستند." },
+        { status: 400 }
+      );
+    }
+
+    // Update the user's following list
     const targetUser = await User.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(userId),
+      userId,
       { $pull: { following: unFollowId } },
       { new: true }
-    ).catch((error) => {
-        console.log(error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      });
+    );
 
-    // Update the target followers List
+    if (!targetUser) {
+      return NextResponse.json(
+        { error: "کاربر مورد نظر پیدا نشد." },
+        { status: 404 }
+      );
+    }
+
+    // Update the unfollowed user's followers list
     const follower = await User.findByIdAndUpdate(
-      new mongoose.Types.ObjectId(unFollowId),
+      unFollowId,
       { $pull: { followers: userId } },
       { new: true }
-    ).catch((error) => {
-      console.log(error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    });
-    return NextResponse.json({ targetUser, follower } , {status: 200});
+    );
+
+    if (!follower) {
+      return NextResponse.json(
+        { error: "کاربر دنبال شده پیدا نشد." },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "دنبال نکردن با موفقیت انجام شد.", targetUser, follower },
+      { status: 200 }
+    );
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Error during unfollow operation:", error);
+    return NextResponse.json(
+      { error: "خطایی رخ داد. لطفاً دوباره تلاش کنید." },
+      { status: 500 }
+    );
   }
 };
