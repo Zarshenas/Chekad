@@ -1,5 +1,6 @@
 import { Comment } from "@/models/Comment";
 import connectDB from "@/utils/connectDB";
+import { toShamsi } from "@/utils/toShamsi";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
@@ -14,7 +15,8 @@ export const GET = async (req, { params }) => {
       "username profileImage"
     );
 
-    return NextResponse.json(commentsList, { status: 200 });
+    //fotmating the dates to shamsi and then sending comments
+    return NextResponse.json(toShamsi(commentsList), { status: 200 });
   } catch (error) {
     console.error("Error fetching comments:", error);
     return NextResponse.json(

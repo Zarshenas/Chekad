@@ -1,5 +1,6 @@
 import { Post } from "@/models/Post";
 import connectDB from "@/utils/connectDB";
+import { toShamsi } from "@/utils/toShamsi";
 import { NextResponse } from "next/server";
 
 export const GET = async (req) => {
@@ -10,8 +11,8 @@ export const GET = async (req) => {
     try {
       await connectDB();
       const fetchAllPosts = await Post.find();
-
-      return NextResponse.json({ posts: fetchAllPosts }, { status: 200 });
+      //returning all posts with shmasi dates
+      return NextResponse.json({ posts: toShamsi(fetchAllPosts) }, { status: 200 });
     } catch (error) {
       console.error("Error fetching posts:", error);
       return NextResponse.json(

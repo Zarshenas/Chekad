@@ -3,6 +3,7 @@ import { Post } from "@/models/Post";
 import { cloudinary } from "@/utils/cloudinary";
 import connectDB from "@/utils/connectDB";
 import { withMulter } from "@/utils/multer";
+import { toShamsi } from "@/utils/toShamsi";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { Readable } from "stream";
@@ -22,7 +23,8 @@ export const GET = async (req, { params }) => {
 
     const userPosts = await Post.find({ userId: new mongoose.Types.ObjectId(userId) });
 
-    return NextResponse.json({ posts: userPosts }, { status: 200 });
+    //sending back posts dates to shamsi
+    return NextResponse.json({ posts: toShamsi(userPosts) }, { status: 200 });
   } catch (error) {
     console.error("Error fetching posts:", error);
     return NextResponse.json(

@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { Readable } from "stream";
 import { cloudinary } from "@/utils/cloudinary";
+import { toShamsi } from "@/utils/toShamsi";
 
 
 // GET a single post by ID
@@ -20,7 +21,7 @@ export const GET = async (req, { params }) => {
 
     await connectDB();
     const fetchedPost = await Post.findById(
-      new mongoose.Types.ObjectId(postId)
+      postId
     );
 
     if (!fetchedPost) {
@@ -29,8 +30,10 @@ export const GET = async (req, { params }) => {
         { status: 404 }
       );
     }
+    //sending the post with shamsi date
+    const formatDate= toShamsi([fetchedPost]);
 
-    return NextResponse.json({ post: fetchedPost }, { status: 200 });
+    return NextResponse.json({ post:formatDate[0] }, { status: 200 });
   } catch (error) {
     console.error("Error fetching post:", error);
     return NextResponse.json(
