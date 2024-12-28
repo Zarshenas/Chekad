@@ -1,19 +1,19 @@
 import * as Yup from "yup";
 const signupSchema = Yup.object().shape({
   username: Yup.string()
-    .required("username is required")
-    .min(6, "username must be at least 6 characters")
-    .max(15, "username can't be more than 15 characters")
-    .matches("^[A-Za-z][A-Za-z0-9_]{5,15}$", "Invalid username"),
+    .required("نام کاربری الزامی است")
+    .min(6, "نام کاربری باید حداقل 6 کاراکتر باشد")
+    .max(15, "نام کاربری نباید بیشتر از 15 کاراکتر باشد")
+    .matches("^[A-Za-z][A-Za-z0-9_]{5,15}$", "نام کاربری معتبر نیست"),
   email: Yup.string()
-    .email("Invalid email format")
-    .required("Email is required"),
+    .email("فرمت ایمیل معتبر نیست")
+    .required("ایمیل الزامی است"),
   password: Yup.string()
-    .required("Password is required")
-    .min(8, "Password must be at least 8 characters"),
+    .required("رمز عبور الزامی است")
+    .min(8, "رمز عبور باید حداقل 8 کاراکتر باشد"),
   confirmPassword: Yup.string()
-    .oneOf([Yup.ref("password"), null], "Passwords must match")
-    .required("Confirm password is required"),
+    .oneOf([Yup.ref("password"), null], "رمز عبور باید یکسان باشد")
+    .required("تأیید رمز عبور الزامی است"),
 });
 
 export default signupSchema;
