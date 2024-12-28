@@ -1,19 +1,18 @@
 import { Post } from "@/models/Post";
 import connectDB from "@/utils/connectDB";
-import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-export const GET =async (req) => {
+export const GET = async (req) => {
   try {
-    connectDB();
-    const fetchAllPosts = await Post.find()
-      .then((data) => data)
-      .catch((error) => {
-        throw new Error("couldn't retrieve posts");
-      });
-      return NextResponse.json({ post:fetchAllPosts }, { status: 200 });
+    await connectDB();
+    const fetchAllPosts = await Post.find();
+
+    return NextResponse.json({ posts: fetchAllPosts }, { status: 200 });
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: error }, { status: 500 });
+    console.error("Error fetching posts:", error);
+    return NextResponse.json(
+      { error: "خطایی در بازیابی پست‌ها رخ داد. لطفاً دوباره تلاش کنید." },
+      { status: 500 }
+    );
   }
 };
