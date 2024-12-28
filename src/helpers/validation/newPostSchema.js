@@ -4,61 +4,45 @@ const SUPPORTED_IMAGE_FORMATS = ["image/jpeg", "image/png"];
 const SUPPORTED_FILE_FORMATS = ["application/pdf", "application/epub+zip"];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
-// Validation for fileSchema
-// const fileValidationSchema = Yup.object().shape({
-//   filename: Yup.string()
-//     .required("Filename is required")
-//     .max(255, "Filename cannot exceed 255 characters"),
-//   fileType: Yup.string()
-//     .required("File type is required")
-//     .matches(
-//       /^(application\/pdf|application\/epub\+zip|image\/(jpeg|png|gif|webp|bmp|tiff)|application\/vnd\.amazon\.ebook)$/,
-//       "Unsupported file type"
-//     ),
-//   size: Yup.number()
-//     .required("File size is required")
-//     .min(1, "File size cannot be 0 or less")
-//     .max(5 * 1024 * 1024, "File size cannot exceed 5MB"),
-// });
 
 const newPostSchema = Yup.object().shape({
   userId: Yup.string()
-    .required("User ID is required")
-    .matches(/^[0-9a-fA-F]{24}$/, "Invalid User ID format"), // MongoDB ObjectId format
+    .required("شناسه کاربر الزامی است")
+    .matches(/^[0-9a-fA-F]{24}$/, "فرمت شناسه کاربر معتبر نیست"), // MongoDB ObjectId format
   title: Yup.string()
-    .required("Title is required")
-    .max(255, "Title cannot exceed 255 characters"),
+    .required("عنوان الزامی است")
+    .max(255, "عنوان نباید بیشتر از ۲۵۵ کاراکتر باشد"),
   content: Yup.string()
-    .required("Content is required")
-    .max(5000, "Content cannot exceed 5000 characters"),
+    .required("محتوا الزامی است")
+    .max(5000, "محتوا نباید بیشتر از ۵۰۰۰ کاراکتر باشد"),
   tags: Yup.array().of(
-    Yup.string().max(50, "Each tag must be at most 50 characters")
+    Yup.string().max(50, "هر برچسب باید حداکثر ۵۰ کاراکتر باشد")
   ), // Tags array
-  links: Yup.array().of(Yup.string().url("Each link must be a valid URL")), // Links array
+  links: Yup.array().of(Yup.string().url("هر لینک باید یک URL معتبر باشد")), // Links array
   likes: Yup.number()
-    .integer("Likes must be an integer")
-    .min(0, "Likes cannot be negative")
+    .integer("لایک‌ها باید عدد صحیح باشند")
+    .min(0, "لایک‌ها نمی‌توانند منفی باشند")
     .default(0),
   files: Yup.array()
     .of(
       Yup.mixed()
-        .required("File is required")
-        .test("File", "Only PDFs and EBooks are allowed", (value) => {
+        .required("فایل الزامی است")
+        .test("File", "فقط فایل‌های PDF و EBook مجاز هستند", (value) => {
           return value && SUPPORTED_FILE_FORMATS.includes(value.type);
         })
-        .test("size", "File size must be less than 5MB.", (value) => {
+        .test("size", "حجم فایل باید کمتر از ۵MB باشد.", (value) => {
           return value && value.size <= MAX_FILE_SIZE;
         })
     )
-    .max(3, "You can upload up to 3 files"),
+    .max(3, "شما می‌توانید حداکثر ۳ فایل بارگذاری کنید"),
   image: Yup.mixed()
-    .required("Image is required")
-    .test("File", "Unsupported file format. Allowed: JPEG, PNG.", (value) => {
+    .required("تصویر الزامی است")
+    .test("File", "فرمت فایل پشتیبانی نمی‌شود. فرمت‌های مجاز: JPEG, PNG.", (value) => {
       // Ensure file is selected
       if (!value) return false;
       return SUPPORTED_IMAGE_FORMATS.includes(value.type);
     })
-    .test("size", "File size must be less than 5MB.", (value) => {
+    .test("size", "حجم فایل باید کمتر از ۵MB باشد.", (value) => {
       if (!value) return false;
       return value.size <= MAX_FILE_SIZE;
     }),
