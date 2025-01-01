@@ -9,7 +9,6 @@ export const GET = async (req, { params }) => {
   try {
     await connectDB();
 
-    // Validate userId as a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return NextResponse.json(
         { error: "آیدی وارد شده معتبر نیست." },
@@ -17,7 +16,6 @@ export const GET = async (req, { params }) => {
       );
     }
 
-    // Fetch the user's followers
     const user = await User.findById(userId).populate(
       "followers",
       "username name profileImage"

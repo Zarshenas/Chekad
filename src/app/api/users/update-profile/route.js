@@ -35,7 +35,6 @@ export const PUT = withMulter(async (req) => {
       );
     }
 
-    // Connect to the database
     await connectDB();
 
     // Upload profile picture to Cloudinary

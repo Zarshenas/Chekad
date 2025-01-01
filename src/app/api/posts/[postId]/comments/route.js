@@ -4,7 +4,6 @@ import { toShamsi } from "@/utils/toShamsi";
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
-// GET comments for a specific post
 export const GET = async (req, { params }) => {
   const { postId } = params;
 
@@ -15,7 +14,6 @@ export const GET = async (req, { params }) => {
       "username profileImage"
     );
 
-    //fotmating the dates to shamsi and then sending comments
     return NextResponse.json(toShamsi(commentsList), { status: 200 });
   } catch (error) {
     console.error("Error fetching comments:", error);
@@ -26,7 +24,6 @@ export const GET = async (req, { params }) => {
   }
 };
 
-// POST a new comment
 export async function POST(req, { params }) {
   const userId = req.headers.get("x-user-id");
   const { postId } = params;
@@ -58,7 +55,6 @@ export async function POST(req, { params }) {
   }
 }
 
-// PUT to update a comment
 export const PUT = async (req) => {
   try {
     const { commentId, newCommentText } = await req.json();
@@ -94,7 +90,6 @@ export const PUT = async (req) => {
   }
 };
 
-// DELETE a comment
 export const DELETE = async (req) => {
   try {
     const { commentId } = await req.json();

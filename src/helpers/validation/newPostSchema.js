@@ -8,7 +8,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const newPostSchema = Yup.object().shape({
   userId: Yup.string()
     .required("شناسه کاربر الزامی است")
-    .matches(/^[0-9a-fA-F]{24}$/, "فرمت شناسه کاربر معتبر نیست"), // MongoDB ObjectId format
+    .matches(/^[0-9a-fA-F]{24}$/, "فرمت شناسه کاربر معتبر نیست"), 
   title: Yup.string()
     .required("عنوان الزامی است")
     .max(255, "عنوان نباید بیشتر از ۲۵۵ کاراکتر باشد"),
@@ -18,7 +18,7 @@ const newPostSchema = Yup.object().shape({
   tags: Yup.array().of(
     Yup.string().max(50, "هر برچسب باید حداکثر ۵۰ کاراکتر باشد")
   ), // Tags array
-  links: Yup.array().of(Yup.string().url("هر لینک باید یک URL معتبر باشد")), // Links array
+  links: Yup.array().of(Yup.string().url("هر لینک باید یک URL معتبر باشد")), 
   likes: Yup.number()
     .integer("لایک‌ها باید عدد صحیح باشند")
     .min(0, "لایک‌ها نمی‌توانند منفی باشند")
@@ -38,7 +38,7 @@ const newPostSchema = Yup.object().shape({
   image: Yup.mixed()
     .required("تصویر الزامی است")
     .test("File", "فرمت فایل پشتیبانی نمی‌شود. فرمت‌های مجاز: JPEG, PNG.", (value) => {
-      // Ensure file is selected
+      // to know file is selected
       if (!value) return false;
       return SUPPORTED_IMAGE_FORMATS.includes(value.type);
     })

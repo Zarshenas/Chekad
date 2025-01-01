@@ -17,42 +17,42 @@ export const GET = async (req) => {
       console.error("Error fetching posts:", error);
       return NextResponse.json(
         { error: "خطایی در بازیابی پست‌ها رخ داد. لطفاً دوباره تلاش کنید." },
-        { status: 500 } // Changed to 500 for server errors
+        { status: 500 } 
       );
     }
   } else {
-    const keyword = searchParams.get("keyword"); // Keyword to search in title/content
-    const tags = searchParams.getAll("tags"); // Tags to filter posts
-    const page = Math.max(1, parseInt(searchParams.get("page")) || 1); // Ensure page is at least 1
-    const limit = Math.max(1, parseInt(searchParams.get("limit")) || 10); // Ensure limit is at least 1
+    const keyword = searchParams.get("keyword");
+    const tags = searchParams.getAll("tags"); 
+    const page = Math.max(1, parseInt(searchParams.get("page")) || 1); 
+    const limit = Math.max(1, parseInt(searchParams.get("limit")) || 10); 
 
     try {
       await connectDB();
 
       const filter = {};
       
-      // Filter by keyword in title or content
+      
       if (keyword) {
-        const sanitizedKeyword = keyword.replace(/[-\/\\^$.*+?()[\]{}|]/g, '\\$&'); // Simple regex escape
+        const sanitizedKeyword = keyword.replace(/[-\/\\^$.*+?()[\]{}|]/g, '\\$&'); 
         filter.$or = [
-          { title: { $regex: sanitizedKeyword, $options: "i" } }, // Case-insensitive match
+          { title: { $regex: sanitizedKeyword, $options: "i" } }, 
           { content: { $regex: sanitizedKeyword, $options: "i" } },
         ];
       }
 
-      // Filter by tags (must match all provided tags)
+      
       if (tags.length > 0) {
         filter.tags = { $all: tags };
       }
-      // Pagination and sorting
+      
       const skip = (page - 1) * limit;
 
       const posts = await Post.find(filter)
-        .sort({ createdAt: -1 }) // Sort by newest posts
+        .sort({ createdAt: -1 }) 
         .skip(skip)
         .limit(limit);
       
-      const totalPosts = await Post.countDocuments(filter); // Total matching posts for pagination
+      const totalPosts = await Post.countDocuments(filter); 
 
       return NextResponse.json(
         {
@@ -69,7 +69,7 @@ export const GET = async (req) => {
       console.error("Error fetching posts:", error);
       return NextResponse.json(
         { error: "خطایی در دریافت پست‌ها رخ داد. لطفاً دوباره تلاش کنید." },
-        { status: 500 } // Changed to 500 for server errors
+        { status: 500 } 
       );
     }
   }

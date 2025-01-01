@@ -43,7 +43,6 @@ export const GET = async (req, { params }) => {
   }
 };
 
-// DELETE a post by ID
 export const DELETE = async (req, { params }) => {
   const { postId } = params;
 

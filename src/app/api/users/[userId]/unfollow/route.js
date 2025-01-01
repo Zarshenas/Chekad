@@ -18,7 +18,6 @@ export const POST = async (req, { params }) => {
       );
     }
 
-    // Update the user's following list
     const targetUser = await User.findByIdAndUpdate(
       userId,
       { $pull: { following: unFollowId } },

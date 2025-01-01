@@ -10,7 +10,6 @@ export const POST = async (req, { params }) => {
     const { followId } = await req.json();
     const { userId } = params;
 
-    // Validate userId and followId as ObjectId
     if (!mongoose.Types.ObjectId.isValid(userId) || !mongoose.Types.ObjectId.isValid(followId)) {
       return NextResponse.json(
         { error: "آیدی‌های وارد شده معتبر نیستند." },
@@ -18,7 +17,6 @@ export const POST = async (req, { params }) => {
       );
     }
 
-    // Update the user's following list
     const targetUser = await User.findByIdAndUpdate(
       userId,
       { $addToSet: { following: followId } },
