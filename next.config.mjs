@@ -7,7 +7,6 @@ const nextConfig = {
   },
   assetPrefix: isProd ? "/your-repository-name/" : "",
   basePath: isProd ? "/your-repository-name" : "",
-  output: "export",
 };
 
 export default nextConfig;
