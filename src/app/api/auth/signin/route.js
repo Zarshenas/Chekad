@@ -52,7 +52,7 @@ export async function POST(req) {
     });
 
     return new Response(
-      JSON.stringify({ message: "ورود با موفقیت انجام شد." }),
+      JSON.stringify({ message: "ورود با موفقیت انجام شد." , access:token }),
       {
         status: 200,
         headers: { "Set-Cookie": serialized },
